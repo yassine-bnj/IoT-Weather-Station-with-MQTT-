@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  subscriber:
+    build: ./subscriber
+    container_name: subscriber
+    depends_on:
+      - mosquitto
+    volumes:
+      - ./web/weather_data.db:/app/weather_data.db
+
+  publisher:
+    build: ./publisher
+    container_name: publisher
+    depends_on:
+      - mosquitto
+
+  web:
+    build: ./web
+    container_name: web
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./web/weather_data.db:/app/weather_data.db
